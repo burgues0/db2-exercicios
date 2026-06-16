@@ -160,3 +160,139 @@ CREATE TABLE medicamento (
     unidade_medida  VARCHAR(20)   NOT NULL,
     ativo           BOOLEAN       NOT NULL DEFAULT TRUE
 );
+
+CREATE TABLE prescricao (
+    id              SERIAL PRIMARY KEY,
+    consulta_id     INT          NOT NULL REFERENCES consulta(id),
+    veterinario_id  INT          NOT NULL REFERENCES veterinario(funcionario_id),
+    emitida_em      TIMESTAMP    NOT NULL DEFAULT NOW(),
+    observacoes     TEXT
+);
+
+CREATE TABLE prescricao_item (
+    id              SERIAL PRIMARY KEY,
+    prescricao_id   INT           NOT NULL REFERENCES prescricao(id),
+    medicamento_id  INT           NOT NULL REFERENCES medicamento(id),
+    dose            VARCHAR(40)   NOT NULL,
+    frequencia      VARCHAR(60)   NOT NULL,
+    duracao_dias    SMALLINT      NOT NULL,
+    observacoes     TEXT
+);
+
+CREATE TABLE exame (
+    id                  SERIAL PRIMARY KEY,
+    consulta_id         INT          NOT NULL REFERENCES consulta(id),
+    animal_id           INT          NOT NULL REFERENCES animal(id),
+    tipo                tipo_exame   NOT NULL,
+    solicitado_por      INT          NOT NULL REFERENCES veterinario(funcionario_id),
+    realizado_por       INT          REFERENCES funcionario(id),
+    data_solicitacao    DATE         NOT NULL DEFAULT CURRENT_DATE,
+    data_realizacao     DATE,
+    resultado           TEXT,
+    laudo               TEXT,
+    criado_em           TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE estoque (
+    id              SERIAL PRIMARY KEY,
+    unidade_id      INT           NOT NULL REFERENCES unidade(id),
+    medicamento_id  INT           NOT NULL REFERENCES medicamento(id),
+    quantidade      NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (quantidade >= 0),
+    lote            VARCHAR(40),
+    validade        DATE,
+    qtd_minima      NUMERIC(10,2) NOT NULL DEFAULT 5,
+    UNIQUE (unidade_id, medicamento_id, lote)
+);
+
+CREATE TABLE movimentacao_estoque (
+    id              SERIAL PRIMARY KEY,
+    estoque_id      INT               NOT NULL REFERENCES estoque(id),
+    tipo            tipo_movimentacao NOT NULL,
+    quantidade      NUMERIC(10,2)     NOT NULL CHECK (quantidade > 0),
+    responsavel_id  INT               NOT NULL REFERENCES funcionario(id),
+    observacao      TEXT,
+    criado_em       TIMESTAMP         NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE vacina (
+    id          SERIAL PRIMARY KEY,
+    nome        VARCHAR(100) NOT NULL,
+    fabricante  VARCHAR(100),
+    doenca_alvo VARCHAR(100)
+);
+
+CREATE TABLE vacinacao (
+    id                  SERIAL PRIMARY KEY,
+    animal_id           INT         NOT NULL REFERENCES animal(id),
+    vacina_id           INT         NOT NULL REFERENCES vacina(id),
+    aplicado_por        INT         NOT NULL REFERENCES funcionario(id),
+    lote                VARCHAR(40) NOT NULL,
+    validade_lote       DATE        NOT NULL,
+    data_aplicacao      DATE        NOT NULL DEFAULT CURRENT_DATE,
+    dose                dose_vacina NOT NULL,
+    proxima_dose_prevista DATE,
+    observacoes         TEXT
+);
+
+CREATE TABLE internacao (
+    id              SERIAL PRIMARY KEY,
+    animal_id       INT       NOT NULL REFERENCES animal(id),
+    unidade_id      INT       NOT NULL REFERENCES unidade(id),
+    sala_id         INT       NOT NULL REFERENCES sala(id),
+    veterinario_id  INT       NOT NULL REFERENCES veterinario(funcionario_id),
+    entrada         TIMESTAMP NOT NULL DEFAULT NOW(),
+    saida           TIMESTAMP,
+    motivo          TEXT      NOT NULL,
+    ativo           BOOLEAN   NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE evolucao_clinica (
+    id              SERIAL PRIMARY KEY,
+    internacao_id   INT       NOT NULL REFERENCES internacao(id),
+    registrado_por  INT       NOT NULL REFERENCES funcionario(id),
+    data_hora       TIMESTAMP NOT NULL DEFAULT NOW(),
+    descricao       TEXT      NOT NULL
+);
+
+CREATE TABLE fatura (
+    id              SERIAL PRIMARY KEY,
+    cliente_id        INT            NOT NULL REFERENCES cliente(id),
+    animal_id       INT            NOT NULL REFERENCES animal(id),
+    emitida_em      TIMESTAMP      NOT NULL DEFAULT NOW(),
+    valor_total     NUMERIC(10,2)  NOT NULL DEFAULT 0,
+    valor_plano     NUMERIC(10,2)  NOT NULL DEFAULT 0,
+    valor_cliente     NUMERIC(10,2)  NOT NULL DEFAULT 0,
+    desconto        NUMERIC(10,2)  NOT NULL DEFAULT 0,
+    desconto_motivo TEXT,
+    status          status_pagamento NOT NULL DEFAULT 'pendente'
+);
+
+CREATE TABLE fatura_item (
+    id              SERIAL PRIMARY KEY,
+    fatura_id       INT               NOT NULL REFERENCES fatura(id),
+    tipo            tipo_fatura_item  NOT NULL,
+    referencia_id   INT               NOT NULL,
+    descricao       VARCHAR(200)      NOT NULL,
+    valor           NUMERIC(10,2)     NOT NULL
+);
+
+CREATE TABLE pagamento (
+    id              SERIAL PRIMARY KEY,
+    fatura_id       INT              NOT NULL REFERENCES fatura(id),
+    meio            meio_pagamento   NOT NULL,
+    valor           NUMERIC(10,2)    NOT NULL,
+    data_pagamento  TIMESTAMP        NOT NULL DEFAULT NOW(),
+    status          status_pagamento NOT NULL DEFAULT 'pendente',
+    observacoes     TEXT
+);
+
+CREATE TABLE log_prontuario (
+    id              SERIAL PRIMARY KEY,
+    tabela          VARCHAR(60)  NOT NULL,
+    registro_id     INT          NOT NULL,
+    operacao        CHAR(6)      NOT NULL CHECK (operacao IN ('INSERT','UPDATE','DELETE')),
+    dados_anteriores JSONB,
+    dados_novos     JSONB,
+    realizado_por   VARCHAR(120),
+    realizado_em    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
