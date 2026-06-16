@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE tipo_sala          AS ENUM ('consultorio', 'cirurgia', 'internacao', 'exames', 'recepcao');
 CREATE TYPE tipo_funcionario   AS ENUM ('veterinario', 'recepcionista', 'auxiliar', 'tecnico_lab');
-CREATE TYPE tipo_tutor         AS ENUM ('pf', 'pj');
+CREATE TYPE tipo_cliente       AS ENUM ('pf', 'pj');
 CREATE TYPE sexo_animal        AS ENUM ('macho', 'femea', 'indefinido');
 CREATE TYPE status_animal      AS ENUM ('ativo', 'falecido', 'transferido');
 CREATE TYPE status_consulta    AS ENUM ('agendada', 'em_atendimento', 'concluida', 'cancelada');
@@ -74,9 +74,9 @@ CREATE TABLE veterinario_especialidade (
     PRIMARY KEY (veterinario_id, especialidade_id)
 );
 
-CREATE TABLE tutor (
+CREATE TABLE cliente (
     id              SERIAL PRIMARY KEY,
-    tipo            tipo_tutor   NOT NULL,
+    tipo            tipo_cliente   NOT NULL,
     cpf             CHAR(11)     UNIQUE,
     nome            VARCHAR(120),
     data_nascimento DATE,
@@ -95,4 +95,6 @@ CREATE TABLE tutor (
     email           VARCHAR(120) NOT NULL,
     ativo           BOOLEAN      NOT NULL DEFAULT TRUE,
     criado_em       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    CONSTRAINT cliente_pf_check CHECK (tipo <> 'pf' OR (cpf IS NOT NULL AND nome IS NOT NULL)),
+    CONSTRAINT cliente_pj_check CHECK (tipo <> 'pj' OR (cnpj IS NOT NULL AND razao_social IS NOT NULL AND responsavel_nome IS NOT NULL))
 );
