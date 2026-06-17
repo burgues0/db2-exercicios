@@ -45,8 +45,7 @@ ORDER BY mes DESC, u.nome;
 
 -- view: animais com dose de vacina vencida ou perto de vencer
 CREATE OR REPLACE VIEW vw_vacinacao_pendente AS
-SELECT
-    a.id AS animal_id, a.nome AS animal, a.especie, cl.nome AS cliente, cl.telefone AS telefone_cliente, cl.email AS email_cliente, vac.nome AS vacina, v.data_aplicacao AS ultima_aplicacao, v.proxima_dose_prevista,
+SELECT a.id AS animal_id, a.nome AS animal, a.especie, cl.nome AS cliente, cl.telefone AS telefone_cliente, cl.email AS email_cliente, vac.nome AS vacina, v.data_aplicacao AS ultima_aplicacao, v.proxima_dose_prevista,
     CASE
         WHEN v.proxima_dose_prevista < CURRENT_DATE THEN 'ATRASADA'
         WHEN v.proxima_dose_prevista <= CURRENT_DATE + INTERVAL '30 days' THEN 'PRÓXIMA (30 dias)'
