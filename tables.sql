@@ -1,5 +1,3 @@
-CREATE DATABASE database_clinica;
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE tipo_sala          AS ENUM ('consultorio', 'cirurgia', 'internacao', 'exames', 'recepcao');

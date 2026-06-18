@@ -1,7 +1,7 @@
 INSERT INTO unidade (nome, logradouro, numero, complemento, bairro, cidade, estado, cep, telefone, email) VALUES
-('VetCare Copacabana',  'Rua Barata Ribeiro',   '320', 'Sala 1',  'Copacabana',   'Rio de Janeiro', 'RJ', '22040-000', '(21) 3001-1001', 'copa@exemplo.com'),
-('VetCare Barra',       'Av. das Américas',     '4666','Loja 12', 'Barra da Tijuca','Rio de Janeiro','RJ', '22640-102', '(21) 3001-1002', 'barra@exemplo.com'),
-('VetCare Niterói',     'Rua Visconde do Rio Branco','80', NULL,  'Centro',       'Niterói',        'RJ', '24020-005', '(21) 3001-1003', 'niteroi@exemplo.com');
+('Unidade Copacabana',  'Rua Barata Ribeiro',   '320', 'Sala 1',  'Copacabana',   'Rio de Janeiro', 'RJ', '22040-000', '(21) 3001-1001', 'copa@exemplo.com'),
+('Unidade Barra',       'Av. das Américas',     '4666','Loja 12', 'Barra da Tijuca','Rio de Janeiro','RJ', '22640-102', '(21) 3001-1002', 'barra@exemplo.com'),
+('Unidade Niterói',     'Rua Visconde do Rio Branco','80', NULL,  'Centro',       'Niterói',        'RJ', '24020-005', '(21) 3001-1003', 'niteroi@exemplo.com');
 
 INSERT INTO sala (unidade_id, nome, tipo, capacidade) VALUES
 (1, 'Consultório 1',     'consultorio', 1),
