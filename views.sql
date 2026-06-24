@@ -1,6 +1,6 @@
 -- view: agenda completa de consultas com dados
 CREATE OR REPLACE VIEW vw_agenda_dia AS
-SELECT c.id AS consulta_id, c.data_hora, u.nome AS unidade, s.nome AS sala, a.nome AS animal, a.especie, cl.nome AS cliente, cl.telefone AS telefone_cliente, f.nome AS veterinario, v.crmv, c.status
+SELECT c.id AS consulta_id, c.data_hora, u.nome AS unidade, s.nome AS sala, a.nome AS animal, a.especie, COALESCE(cl.nome, cl.razao_social) AS cliente, cl.telefone AS telefone_cliente, f.nome AS veterinario, v.crmv, c.status
 FROM consulta c
 JOIN unidade u       ON u.id = c.unidade_id
 JOIN sala s          ON s.id = c.sala_id
@@ -11,7 +11,7 @@ JOIN veterinario v   ON v.funcionario_id = c.veterinario_id;
 
 -- view: histórico clínico completo de cada animal
 CREATE OR REPLACE VIEW vw_prontuario_animal AS
-SELECT a.id AS animal_id, a.nome AS animal, a.especie, a.raca, a.sexo, a.data_nascimento, a.peso_kg, cl.nome AS cliente, cl.telefone AS telefone_cliente, c.id AS consulta_id, c.data_hora AS data_consulta, f.nome AS veterinario, c.diagnostico, c.recomendacoes, c.status AS status_consulta
+SELECT a.id AS animal_id, a.nome AS animal, a.especie, a.raca, a.sexo, a.data_nascimento, a.peso_kg, COALESCE(cl.nome, cl.razao_social) AS cliente, cl.telefone AS telefone_cliente, c.id AS consulta_id, c.data_hora AS data_consulta, f.nome AS veterinario, c.diagnostico, c.recomendacoes, c.status AS status_consulta
 FROM animal a
 JOIN cliente cl         ON cl.id = a.cliente_id
 LEFT JOIN consulta c    ON c.animal_id = a.id
@@ -45,7 +45,7 @@ ORDER BY mes DESC, u.nome;
 
 -- view: animais com dose de vacina vencida ou perto de vencer
 CREATE OR REPLACE VIEW vw_vacinacao_pendente AS
-SELECT a.id AS animal_id, a.nome AS animal, a.especie, cl.nome AS cliente, cl.telefone AS telefone_cliente, cl.email AS email_cliente, vac.nome AS vacina, v.data_aplicacao AS ultima_aplicacao, v.proxima_dose_prevista,
+SELECT a.id AS animal_id, a.nome AS animal, a.especie, COALESCE(cl.nome, cl.razao_social) AS cliente, cl.telefone AS telefone_cliente, cl.email AS email_cliente, vac.nome AS vacina, v.data_aplicacao AS ultima_aplicacao, v.proxima_dose_prevista,
     CASE
         WHEN v.proxima_dose_prevista < CURRENT_DATE THEN 'ATRASADA'
         WHEN v.proxima_dose_prevista <= CURRENT_DATE + INTERVAL '30 days' THEN 'PRÓXIMA (30 dias)'
