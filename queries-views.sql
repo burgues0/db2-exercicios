@@ -6,7 +6,7 @@ ORDER BY data_hora;
 -- consultar agenda de uma unidade em uma data específica
 SELECT * FROM public.vw_agenda_dia
 WHERE unidade = 'Unidade Copacabana'
-  AND data_hora::DATE = '2024-04-10'
+  AND data_hora::DATE = '2026-06-24'
 ORDER BY data_hora;
 
 -- vw_prontuario_animal
