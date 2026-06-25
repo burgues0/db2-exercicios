@@ -32,9 +32,17 @@ GROUP BY u.nome, dm.nome_comercial, t.ano, t.nome_mes, t.mes
 ORDER BY t.ano, t.mes;
 
 -- atendimentos e receita por veterinario
-SELECT v.nome AS veterinario, COUNT(fa.sk_atendimento) AS total_atendimentos, SUM(ff.valor_bruto) AS receita_gerada
-FROM fato_atendimento fa
-JOIN dim_veterinario v ON v.sk_veterinario = fa.sk_veterinario
-LEFT JOIN fato_financeiro ff ON ff.sk_animal = fa.sk_animal AND ff.sk_tempo = fa.sk_tempo
-GROUP BY v.nome
+WITH total_atendimentos_cte AS (
+    SELECT fa.sk_veterinario, COUNT(fa.sk_atendimento) AS total_atendimentos
+    FROM fato_atendimento fa GROUP BY fa.sk_veterinario
+),
+receita_veterinario_cte AS (
+    SELECT c.veterinario_id, SUM(f.valor_total) AS receita_gerada
+    FROM consulta c JOIN fatura f ON f.animal_id = c.animal_id 
+    WHERE c.status = 'concluida' GROUP BY c.veterinario_id
+)
+SELECT v.nome AS veterinario, COALESCE(ta.total_atendimentos, 0) AS total_atendimentos, COALESCE(rv.receita_gerada, 0.00) AS receita_gerada
+FROM dim_veterinario v
+LEFT JOIN total_atendimentos_cte ta ON v.id_funcionario_orig = ta.sk_veterinario
+LEFT JOIN receita_veterinario_cte rv ON v.id_funcionario_orig = rv.veterinario_id
 ORDER BY receita_gerada DESC;
