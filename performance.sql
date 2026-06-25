@@ -92,13 +92,3 @@ SELECT animal_id, proxima_dose_prevista FROM vacinacao
 WHERE proxima_dose_prevista <= CURRENT_DATE + INTERVAL '30 days'
 AND proxima_dose_prevista IS NOT NULL;
 SET enable_seqscan = ON;
-
--- busca em diagnósticos
--- antes (ilike, sem índice)
-EXPLAIN ANALYZE
-SELECT id, diagnostico FROM consulta
-WHERE diagnostico ILIKE '%dermatite%';
--- depois (gin + tsvector)
-EXPLAIN ANALYZE
-SELECT id, diagnostico FROM consulta
-WHERE to_tsvector('portuguese', COALESCE(diagnostico,'')) @@ to_tsquery('portuguese', 'dermatite');
